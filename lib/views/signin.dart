@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
+  const SignIn({super.key});
+
   @override
-  _SignInState createState() => _SignInState()
+  State<SignIn> createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
