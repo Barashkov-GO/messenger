@@ -1,9 +1,12 @@
-// @dart=2.9
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_first_flutter/helperfunctions/sharedpref_helper.dart';
+import 'package:my_first_flutter/views/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'database.dart';
 
 class AuthMethods{
 
@@ -17,10 +20,10 @@ class AuthMethods{
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-    final GoogleSignInAccount googleSignInAccount =
+    final GoogleSignInAccount? googleSignInAccount =
         await _googleSignIn.signIn();
 
-    final GoogleSignInAuthentication googleSignInAuthentication =
+    final GoogleSignInAuthentication? googleSignInAuthentication =
         await googleSignInAccount?.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
@@ -31,28 +34,40 @@ class AuthMethods{
     UserCredential result =
         await _firebaseAuth.signInWithCredential(credential);
 
-    User userDetails = result.user;
+    User? userDetails = result.user;
 
     if (result == null) {
     } else {
-      SharedPreferenceHelper().saveUserEmail(userDetails.email);
-      SharedPreferenceHelper().saveUserId(userDetails.uid);
+      SharedPreferenceHelper().saveUserEmail(userDetails?.email ?? "");
+      SharedPreferenceHelper().saveUserId(userDetails?.uid ?? "");
       SharedPreferenceHelper()
-          .saveUserName(userDetails.email.replaceAll("@gmail.com", ""));
-      SharedPreferenceHelper().saveDisplayName(userDetails.displayName);
-      SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL);
+          .saveUserName(userDetails?.email?.replaceAll("@gmail.com", "") ?? "");
+      SharedPreferenceHelper().saveDisplayName(userDetails?.displayName ?? "");
+      SharedPreferenceHelper().saveUserProfileUrl(userDetails?.photoURL ?? "");
 
-      DatabaseMethods()
-          .addUserInfoToDB(
-          userID: userDetails.uid,
-          email: userDetails.email,
-          username: userDetails.email.replaceAll("@gmail.com", ""),
-          name: userDetails.displayName,
-          profileUrl: userDetails.photoURL)
-          .then(() {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Home()));
-      });
+      Map<String, dynamic> userInfoMap = {
+        "email": userDetails?.email,
+        "username": userDetails?.email?.replaceAll("@gmail.com", ""),
+        "name": userDetails?.displayName,
+        "imgUrl": userDetails?.photoURL
+      };
+
+      DatabaseMethods().addUserInfoToDB(userDetails?.uid ?? "", userInfoMap).then(
+          (value) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder:
+              (context) => Home()));
+          });
+      // DatabaseMethods()
+      //     .addUserInfoToDB(
+      //     userID: userDetails.uid,
+      //     email: userDetails.email,
+      //     username: userDetails.email.replaceAll("@gmail.com", ""),
+      //     name: userDetails.displayName,
+      //     profileUrl: userDetails.photoURL)
+      //     .then(() {
+      //   Navigator.pushReplacement(
+      //       context, MaterialPageRoute(builder: (context) => Home()));
+      // });
     }
   }
 
@@ -61,7 +76,4 @@ class AuthMethods{
     prefs.clear();
     await auth.signOut();
   }
-  }
-
-
 }
