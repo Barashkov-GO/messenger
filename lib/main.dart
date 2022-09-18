@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:my_first_flutter/services/auth.dart';
+import 'package:my_first_flutter/views/home.dart';
 import 'package:my_first_flutter/views/signin.dart';
 
 Future<void> main() async {
@@ -21,7 +23,16 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-      home: const SignIn(),
+      home: FutureBuilder(
+        future: AuthMethods().getCurrenctUser(),
+        builder: (context, AsyncSnapshot<dynamic> snapshot){
+          if(snapshot.hasData){
+            return const Home();
+          }else{
+            return const SignIn();
+          }
+        },
+      ),
     );
   }
 }
