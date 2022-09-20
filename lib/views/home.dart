@@ -1,4 +1,10 @@
+import 'dart:html';
+import 'dart:js';
+
 import 'package:flutter/material.dart';
+import 'package:my_first_flutter/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'chatscreen.dart';
 //import 'package:my_first_flutter/services/auth.dart';
 import './signin.dart';
 
@@ -13,7 +19,73 @@ class _HomeState extends State<Home> {
 
   bool isSearching = false;
 
+  late Stream usersStream;
+
   TextEditingController searchUsernameEditingController = TextEditingController();
+
+  onSearchBtnClick() async {
+    isSearching = true;
+    setState(() {});
+    usersStream = await DatabaseMethods().getUserByUserName(
+        searchUsernameEditingController.text);
+    setState(() {});
+  }
+
+  Widget searchListUserTile({required String profileUrl, name, username, email}){
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatScreen(username, name)));
+      },
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(40),
+            child: Image.network(
+              profileUrl,
+              height: 30,
+              width: 30,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [ Text(name), Text(email)])
+        ],
+      ),
+    );
+  }
+
+  Widget searchUsersList(){
+    return StreamBuilder(
+      stream: usersStream,
+      builder: (context, snapshot){
+        return snapshot.hasData
+            ? ListView.builder(
+                itemCount: snapshot.data.docs.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return searchListUserTile(
+                      profileUrl: ds["imgUrl"],
+                      name: ds["name"],
+                      email: ds["email"],
+                      username: ds["username"]
+                  );
+                },
+              )
+            : const Center(
+                child: CircularProgressIndicator(),
+              );
+      },
+    );
+  }
+
+  Widget chatRoomsList(){
+    return Container();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,9 +151,9 @@ class _HomeState extends State<Home> {
                           ),
                           GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  isSearching = true;
-                                });
+                                if (searchUsernameEditingController.text != ""){
+                                  onSearchBtnClick();
+                                }
                               },
                               child: Icon(Icons.search))
                         ],
@@ -89,7 +161,8 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 ],
-              )
+              ),
+              isSearching ? searchUsersList() : chatRoomsList()
             ],
           )
       )
