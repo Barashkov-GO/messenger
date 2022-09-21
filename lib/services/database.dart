@@ -15,4 +15,20 @@ class DatabaseMethods{
         .where("username", isEqualTo: username)
         .snapshots();
   }
+
+  Future addMessage(String chatRoomId, String messageId, Map<String, dynamic> messageInfoMap) async {
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .collection("chats")
+        .doc(messageId)
+        .set(messageInfoMap);
+  }
+
+  updateLastMessageSend(String chatroomId, Map<String, dynamic> lastMessageInfoMap){
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatroomId)
+        .update(lastMessageInfoMap);
+  }
 }
