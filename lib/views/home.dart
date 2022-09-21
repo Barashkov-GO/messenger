@@ -1,5 +1,3 @@
-import 'dart:html';
-import 'dart:js';
 
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter/services/database.dart';
