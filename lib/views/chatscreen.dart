@@ -23,10 +23,10 @@ class _ChatScreenState extends State<ChatScreen> {
     myUserName = (await SharedPreferenceHelper().getUserName())!;
     myEmail = (await SharedPreferenceHelper().getUserEmail())!;
 
-    chatRoomId = getChatRommIdByUsernames(widget.chatWithUsername, myUserName);
+    chatRoomId = getChatRoomIdByUsernames(widget.chatWithUsername, myUserName);
   }
 
-  getChatRommIdByUsernames(String a, String b){
+  getChatRoomIdByUsernames(String a, String b){
     if(a.substring(0,1).codeUnitAt(0) > b.substring(0,1).codeUnitAt(0)){
       return "$b\_$a";
     } else {
@@ -111,6 +111,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     Expanded(
                         child: TextField(
                           controller: messageTextEditingController,
+                          onChanged: (value) {
+                            addMessage(false);
+                          },
                           style: const TextStyle(
                             color: Colors.white
                           ),
@@ -123,9 +126,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         )
                     ),
-                    const Icon(
-                      Icons.send,
-                      color: Colors.white,
+                    GestureDetector(
+                      onTap: (){
+                        addMessage(true);
+                      },
+                      child: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
                     )
                   ],
                 ),

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../helperfunctions/sharedpref_helper.dart';
+import '../services/auth.dart';
 import 'chatscreen.dart';
 //import 'package:my_first_flutter/services/auth.dart';
 import './signin.dart';
@@ -16,10 +18,26 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   bool isSearching = false;
-
+  late String myName, myProfilePic, myUserName, myEmail;
   late Stream usersStream;
 
   TextEditingController searchUsernameEditingController = TextEditingController();
+
+  getMyInfoFromSharedPreference() async {
+    myName = (await SharedPreferenceHelper().getDisplayName())!;
+    myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
+    myUserName = (await SharedPreferenceHelper().getUserName())!;
+    myEmail = (await SharedPreferenceHelper().getUserEmail())!;
+
+  }
+
+  getChatRoomIdByUsernames(String a, String b){
+    if(a.substring(0,1).codeUnitAt(0) > b.substring(0,1).codeUnitAt(0)){
+      return "$b\_$a";
+    } else {
+      return "$a\_$b";
+    }
+  }
 
   onSearchBtnClick() async {
     isSearching = true;
@@ -32,6 +50,14 @@ class _HomeState extends State<Home> {
   Widget searchListUserTile({required String profileUrl, name, username, email}){
     return GestureDetector(
       onTap: (){
+        
+        var chatRoomId = getChatRoomIdByUsernames(myUserName, username);
+        Map<String, dynamic> chatRoomInfoMap = {
+          "users" : [myUserName, username]
+        };
+
+        DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap);
+
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -86,20 +112,26 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void initState() {
+    getMyInfoFromSharedPreference();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
           title: const Text("messenger"),
           actions: [
             InkWell(
-              /*onTap: () {},
+              onTap: () {
                 AuthMethods().signOut().then((s) {
                   Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) =>
-                      SignIn
-                        ()));
+                      context,
+                      MaterialPageRoute(builder: (context) => SignIn()
+                  ));
                 });
-              },*/
+              },
               child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Icon(Icons.exit_to_app)),

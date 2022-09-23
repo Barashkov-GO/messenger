@@ -41,13 +41,14 @@ class AuthMethods{
       SharedPreferenceHelper().saveUserEmail(userDetails?.email ?? "");
       SharedPreferenceHelper().saveUserId(userDetails?.uid ?? "");
       SharedPreferenceHelper()
-          .saveUserName(userDetails?.email?.replaceAll("@gmail.com", "") ?? "");
+          .saveUserName(userDetails?.email?.replaceAll("@gmail.com", "")
+          .replaceAll("@mail.ru", "") ?? "");
       SharedPreferenceHelper().saveDisplayName(userDetails?.displayName ?? "");
       SharedPreferenceHelper().saveUserProfileUrl(userDetails?.photoURL ?? "");
 
       Map<String, dynamic> userInfoMap = {
         "email": userDetails?.email,
-        "username": userDetails?.email?.replaceAll("@gmail.com", ""),
+        "username": userDetails?.email?.replaceAll("@gmail.com", "").replaceAll("@mail.ru", ""),
         "name": userDetails?.displayName,
         "imgUrl": userDetails?.photoURL
       };
