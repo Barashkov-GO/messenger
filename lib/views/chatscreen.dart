@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter/helperfunctions/sharedpref_helper.dart';
 import 'package:my_first_flutter/services/database.dart';
@@ -14,6 +15,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
 
   late String chatRoomId, messageId = "";
+  late Stream messagesStream;
   late String myName, myProfilePic, myUserName, myEmail;
   TextEditingController messageTextEditingController = TextEditingController();
 
@@ -73,9 +75,61 @@ class _ChatScreenState extends State<ChatScreen> {
        });
     }
   }
+  
+  Widget chatMessageTile(String message, bool sendByMe){
+    return Row(
+      mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          Container(
+            decoration:  BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                bottomRight: sendByMe ? Radius.circular(0) : Radius.circular(24),
+                topRight: Radius.circular(24),
+                bottomLeft: sendByMe ? Radius.circular(24) : Radius.circular(0),
+              ),
+              color: Colors.blue,
+            ),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.white),
+            )
+          )
+        ]
+    );
+  }
+
+  Widget chatMessages(){
+    return StreamBuilder(
+        stream: messagesStream,
+        builder: (context, snapshot){
+          return snapshot.hasData
+              ? ListView.builder(
+                padding: const EdgeInsets.only(
+                  bottom: 70,
+                  top: 16
+                ),
+                reverse: true,
+                itemCount: snapshot.data.docs.length,
+                itemBuilder: (context, index){
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return chatMessageTile(ds["message"], myUserName == ds["sendBy"]);
+                }
+          ) : const Center(
+              child: CircularProgressIndicator()
+          );
+        }
+    );
+  }
 
   getAndSetMessages() async {
-
+    messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
+    setState(() {});
   }
 
   doThisOnLaunch() async {
@@ -98,6 +152,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Container(
         child: Stack(
           children: [
+            chatMessages(),
             Container(
               alignment: Alignment.bottomCenter,
               child: Container(
