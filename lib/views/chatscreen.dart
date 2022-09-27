@@ -88,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 topRight: Radius.circular(24),
                 bottomLeft: sendByMe ? Radius.circular(24) : Radius.circular(0),
               ),
-              color: Colors.blue,
+              color: sendByMe ? Colors.blue : Colors.grey,
             ),
             margin: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -166,6 +166,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     Expanded(
                         child: TextField(
                           controller: messageTextEditingController,
+                          // onChanged: (value) {
+                          //   addMessage(false);
+                          // },
                           style: const TextStyle(
                             color: Colors.white
                           ),
