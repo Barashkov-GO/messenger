@@ -63,7 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
            "lastMessageSendBy" : myUserName
          };
 
-         DatabaseMethods().updateLastMessageSend(myUserName, lastMessageInfoMap);
+         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
 
          if (sendClicked){
            //remove text in the message input field
