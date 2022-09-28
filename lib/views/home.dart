@@ -19,7 +19,8 @@ class _HomeState extends State<Home> {
 
   bool isSearching = false;
   late String myName, myProfilePic, myUserName, myEmail;
-  late Stream usersStream, chatRoomsStream;
+  late Stream usersStream;
+  Stream chatRoomsStream = const Stream.empty();
 
   TextEditingController searchUsernameEditingController = TextEditingController();
 
@@ -58,7 +59,7 @@ class _HomeState extends State<Home> {
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName);
+                  return ChatRoomListTile(ds["lastMessage"] ?? '', ds.id, myUserName);
                 })
             : Center(child: CircularProgressIndicator());
       }
@@ -238,12 +239,12 @@ class ChatRoomListTile extends StatefulWidget {
 
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
 
-
-  late String profilePicUrl, name, username;
+  String? profilePicUrl;
+  String? name, username;
 
   getThisUserInfo() async {
     username = widget.chatRoomId.replaceAll(widget.myUsername, "").replaceAll("_", "");
-    QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username);
+    QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username ?? "");
     name = querySnapshot.docs[0]["name"];
     profilePicUrl = querySnapshot.docs[0]["imgUrl"];
     setState((){});
@@ -262,14 +263,14 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(username, name)));
+                builder: (context) => ChatScreen(username ?? "", name ?? "")));
       },
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(30),
             child: Image.network(
-                profilePicUrl,
+                profilePicUrl ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
                 height: 40,
                 width: 40
             ),
@@ -278,7 +279,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: TextStyle(fontSize: 16)),
+              Text(name ?? "", style: TextStyle(fontSize: 16)),
               SizedBox(height: 3),
               Text(widget.lastMessage)
             ],
