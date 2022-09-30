@@ -18,7 +18,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   bool isSearching = false;
-  late String myName, myProfilePic, myUserName, myEmail;
+  String myUserName = "";
+  late String myName, myProfilePic, myEmail;
   late Stream usersStream;
   Stream chatRoomsStream = const Stream.empty();
 

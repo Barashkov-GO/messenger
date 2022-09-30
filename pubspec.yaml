@@ -43,6 +43,9 @@ dependencies:
   shared_preferences: ^2.0.15
   firebase_core: ^1.22.0
   cloud_firestore: ^3.4.8
+  google_fonts: ^3.0.1
+  flutter_svg: ^1.1.5
+  flutter_inset_box_shadow: ^1.0.8
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +63,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -96,3 +101,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+# To add assets to your application, add an assets section, like this:
+assets:
+  - google_fonts/
