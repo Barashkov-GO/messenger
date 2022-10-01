@@ -84,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return profilePicUrl;
   }
 
-  Widget getMessageContainer(String message, bool sendByMe) {
+  Widget getMessageContainer(String message, String sendBy, bool sendByMe) {
     return Container(
         decoration:  BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -100,8 +100,12 @@ class _ChatScreenState extends State<ChatScreen> {
             vertical: 4
         ),
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column (
             children: [
+              Text(
+                sendBy,
+                style: const TextStyle(color: Colors.black),
+              ),
               Text(
                 message,
                 style: const TextStyle(color: Colors.white),
@@ -115,7 +119,7 @@ class _ChatScreenState extends State<ChatScreen> {
     bool sendByMe = myUserName == sendBy;
 
     List<Widget> childrenMyMessage = [
-      getMessageContainer(message, sendByMe),
+      getMessageContainer(message, sendBy, sendByMe),
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: Image.network(
@@ -135,23 +139,15 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 20
         ),
       ),
-      getMessageContainer(message, sendByMe)
+      getMessageContainer(message, sendBy, sendByMe)
     ];
 
     return Row(
       mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          Column (
-            children: [
-              Text(
-                sendBy,
-                style: const TextStyle(color: Colors.black),
-              ),
-              Row (
-                children: sendByMe ? childrenMyMessage : childrenNotMyMessage
-              )
-            ]
-          )
+      children: [
+        Row (
+          children: sendByMe ? childrenMyMessage : childrenNotMyMessage
+        )
       ]
     );
   }
