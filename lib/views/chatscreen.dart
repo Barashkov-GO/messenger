@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter/helperfunctions/sharedpref_helper.dart';
 import 'package:my_first_flutter/services/database.dart';
 import 'package:random_string/random_string.dart';
+
+
 class ChatScreen extends StatefulWidget {
   final String chatWithUsername, name;
 
@@ -16,6 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late String chatRoomId, messageId = "";
   late Stream messagesStream;
+  late String otherName, otherProfilePic, otherUserName;
   late String myName, myProfilePic, myUserName, myEmail;
   TextEditingController messageTextEditingController = TextEditingController();
 
@@ -26,6 +31,12 @@ class _ChatScreenState extends State<ChatScreen> {
     myEmail = (await SharedPreferenceHelper().getUserEmail())!;
 
     chatRoomId = getChatRoomIdByUsernames(widget.chatWithUsername, myUserName);
+  }
+
+  getOtherInfo() async {
+    otherUserName = widget.chatWithUsername;
+    otherProfilePic = (await DatabaseMethods().getUserPhoto(otherUserName))!;
+    otherName = (await DatabaseMethods().getUserName(otherUserName))!;
   }
 
   getChatRoomIdByUsernames(String a, String b){
@@ -44,9 +55,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
        Map<String, dynamic> messageInfoMap = {
         "message" : message,
-         "sendBy" : myUserName,
-         "ts" : lastMessageTs,
-         "imgUrl" : myProfilePic
+        "sendBy" : myUserName,
+        "ts" : lastMessageTs,
+        "imgUrl" : myProfilePic
        };
 
        //messageId
@@ -75,32 +86,78 @@ class _ChatScreenState extends State<ChatScreen> {
        });
     }
   }
-  
-  Widget chatMessageTile(String message, bool sendByMe){
+
+  Widget getMessageContainer(String message, String sendBy, bool sendByMe) {
+    return Container(
+        decoration:  BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(24),
+            bottomRight: sendByMe ? const Radius.circular(0) : const Radius.circular(24),
+            topRight: const Radius.circular(24),
+            bottomLeft: sendByMe ? const Radius.circular(24) : const Radius.circular(0),
+          ),
+          color: sendByMe ? Colors.blue : Colors.grey,
+        ),
+        margin: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 4
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column (
+            children: [
+              Text(
+                sendBy == myUserName ? myName : otherName,
+                style: const TextStyle(color: Colors.red),
+              ),
+              SizedBox(
+                width: message.length > max(myName.length, otherName.length) ? 200 : max(myName.length, otherName.length) * 6,
+                child: Text(
+                  message,
+                  overflow: TextOverflow.fade,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            ]
+        )
+    );
+  }
+
+  Widget chatMessageTile(String message, String myUserName, String sendBy) {
+    bool sendByMe = myUserName == sendBy;
+
+    List<Widget> childrenMyMessage = [
+      getMessageContainer(message, sendBy, sendByMe),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: Image.network(
+          myProfilePic,
+          height: 20,
+          width: 20
+        ),
+      ),
+      const SizedBox(width: 5),
+    ];
+
+    List<Widget> childrenNotMyMessage = [
+      const SizedBox(width: 5),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: Image.network(
+            otherProfilePic,
+            height: 20,
+            width: 20
+        ),
+      ),
+      getMessageContainer(message, sendBy, sendByMe)
+    ];
+
     return Row(
       mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          Container(
-            decoration:  BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24),
-                bottomRight: sendByMe ? Radius.circular(0) : Radius.circular(24),
-                topRight: Radius.circular(24),
-                bottomLeft: sendByMe ? Radius.circular(24) : Radius.circular(0),
-              ),
-              color: sendByMe ? Colors.blue : Colors.grey,
-            ),
-            margin: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white),
-            )
-          )
-        ]
+      children: [
+        Row (
+          children: sendByMe ? childrenMyMessage : childrenNotMyMessage
+        )
+      ]
     );
   }
 
@@ -118,7 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index){
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  return chatMessageTile(ds["message"], myUserName == ds["sendBy"]);
+                  return chatMessageTile(ds["message"], myUserName, ds["sendBy"]);
                 }
           ) : const Center(
               child: CircularProgressIndicator()
@@ -129,10 +186,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   getAndSetMessages() async {
     messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
+    // messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
     setState(() {});
   }
 
   doThisOnLaunch() async {
+    await getOtherInfo();
     await getMyInfoFromSharedPreference();
     getAndSetMessages();
   }
@@ -147,55 +206,63 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.name),
-      ),
-      body: Container(
-        child: Stack(
-          children: [
-            chatMessages(),
-            Container(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                color: Colors.black.withOpacity(0.8),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: TextField(
-                          controller: messageTextEditingController,
-                          // onChanged: (value) {
-                          //   addMessage(false);
-                          // },
-                          style: const TextStyle(
-                            color: Colors.white
-                          ),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "type a message",
-                            hintStyle: TextStyle(
-                              color: Colors.white.withOpacity(0.6)
-                            ),
-                          ),
-                        )
-                    ),
-                    GestureDetector(
-                      onTap: (){
-                        addMessage(true);
-                      },
-                      child: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
-                ),
+        title: Row (
+            children: [
+              Image.network(
+                  otherProfilePic,
+                  height: 20,
+                  width: 20
               ),
-            )
-          ],
-        ),
+              const SizedBox(width: 5),
+              Text(widget.name),
+            ]
+        )
+      ),
+      body: Stack(
+        children: [
+          chatMessages(),
+          Container(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              color: Colors.black.withOpacity(0.8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                        controller: messageTextEditingController,
+                        // onChanged: (value) {
+                        //   addMessage(false);
+                        // },
+                        style: const TextStyle(
+                          color: Colors.white
+                        ),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "type a message",
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.6)
+                          ),
+                        ),
+                      )
+                  ),
+                  GestureDetector(
+                    onTap: (){
+                      addMessage(true);
+                    },
+                    child: const Icon(
+                      Icons.send,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }

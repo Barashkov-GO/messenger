@@ -71,6 +71,21 @@ class DatabaseMethods{
         .snapshots();
   }
 
+  Future<String?> getUserPhoto(String username) async {
+    QuerySnapshot querySnapshot =
+      await getUserInfo(username ?? "");
+    String? profilePicUrl = querySnapshot.docs[0]["imgUrl"];
+    return profilePicUrl;
+  }
+
+  Future<String?> getUserName(String username) async {
+    QuerySnapshot querySnapshot =
+    await getUserInfo(username ?? "");
+    String? userName = querySnapshot.docs[0]["name"];
+    return userName;
+  }
+
+
   Future<QuerySnapshot> getUserInfo(String username) async {
     return await FirebaseFirestore.instance
         .collection("users")
