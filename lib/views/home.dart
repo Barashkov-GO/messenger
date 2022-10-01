@@ -262,8 +262,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   String? name, username;
 
   getThisUserInfo() async {
-    username =
-        widget.chatRoomId.replaceFirst(widget.myUsername, "").replaceAll("_", "");
+    username = widget.chatRoomId.replaceFirst(widget.myUsername, "").replaceAll("_", "");
     QuerySnapshot querySnapshot =
         await DatabaseMethods().getUserInfo(username ?? "");
     name = querySnapshot.docs[0]["name"];

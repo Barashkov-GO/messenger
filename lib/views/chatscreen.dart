@@ -124,7 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: Image.network(
-          myProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+          myProfilePic,
           height: 20,
           width: 20
         ),
@@ -137,7 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: Image.network(
-            otherProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+            otherProfilePic,
             height: 20,
             width: 20
         ),
@@ -180,13 +180,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   getAndSetMessages() async {
     messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
-    messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
+    // messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
     setState(() {});
   }
 
   doThisOnLaunch() async {
-    await getMyInfoFromSharedPreference();
     await getOtherInfo();
+    await getMyInfoFromSharedPreference();
     getAndSetMessages();
   }
 
@@ -203,7 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row (
             children: [
               Image.network(
-                  otherProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+                  otherProfilePic,
                   height: 20,
                   width: 20
               ),
@@ -212,53 +212,51 @@ class _ChatScreenState extends State<ChatScreen> {
             ]
         )
       ),
-      body: Container(
-        child: Stack(
-          children: [
-            chatMessages(),
-            Container(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                color: Colors.black.withOpacity(0.8),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: TextField(
-                          controller: messageTextEditingController,
-                          // onChanged: (value) {
-                          //   addMessage(false);
-                          // },
-                          style: const TextStyle(
-                            color: Colors.white
-                          ),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "type a message",
-                            hintStyle: TextStyle(
-                              color: Colors.white.withOpacity(0.6)
-                            ),
-                          ),
-                        )
-                    ),
-                    GestureDetector(
-                      onTap: (){
-                        addMessage(true);
-                      },
-                      child: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
-                ),
+      body: Stack(
+        children: [
+          chatMessages(),
+          Container(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              color: Colors.black.withOpacity(0.8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8
               ),
-            )
-          ],
-        ),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                        controller: messageTextEditingController,
+                        // onChanged: (value) {
+                        //   addMessage(false);
+                        // },
+                        style: const TextStyle(
+                          color: Colors.white
+                        ),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "type a message",
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.6)
+                          ),
+                        ),
+                      )
+                  ),
+                  GestureDetector(
+                    onTap: (){
+                      addMessage(true);
+                    },
+                    child: const Icon(
+                      Icons.send,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
