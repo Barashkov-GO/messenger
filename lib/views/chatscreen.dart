@@ -16,12 +16,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late String chatRoomId, messageId = "";
   late Stream messagesStream;
-  late String myName, myProfilePic, myUserName, myEmail;
+  late String myName, myProfilePic, otherProfilePic, myUserName, myEmail;
   TextEditingController messageTextEditingController = TextEditingController();
 
   getMyInfoFromSharedPreference() async {
     myName = (await SharedPreferenceHelper().getDisplayName())!;
     myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
+    // otherProfilePic = (await getProfilePhotoUrl(widget.name))!;
     myUserName = (await SharedPreferenceHelper().getUserName())!;
     myEmail = (await SharedPreferenceHelper().getUserEmail())!;
 
@@ -44,9 +45,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
        Map<String, dynamic> messageInfoMap = {
         "message" : message,
-         "sendBy" : myUserName,
-         "ts" : lastMessageTs,
-         "imgUrl" : myProfilePic
+        "sendBy" : myUserName,
+        "ts" : lastMessageTs,
+        "imgUrl" : myProfilePic
        };
 
        //messageId
@@ -75,32 +76,83 @@ class _ChatScreenState extends State<ChatScreen> {
        });
     }
   }
-  
-  Widget chatMessageTile(String message, bool sendByMe){
+
+  Future<String?> getProfilePhotoUrl(String userName) async {
+    QuerySnapshot querySnapshot =
+        await DatabaseMethods().getUserInfo(userName ?? "");
+    String? profilePicUrl = querySnapshot.docs[0]["imgUrl"];
+    return profilePicUrl;
+  }
+
+  Widget getMessageContainer(String message, bool sendByMe) {
+    return Container(
+        decoration:  BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(24),
+            bottomRight: sendByMe ? const Radius.circular(0) : const Radius.circular(24),
+            topRight: const Radius.circular(24),
+            bottomLeft: sendByMe ? const Radius.circular(24) : const Radius.circular(0),
+          ),
+          color: sendByMe ? Colors.blue : Colors.grey,
+        ),
+        margin: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 4
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+            children: [
+              Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ]
+        )
+    );
+  }
+
+  Widget chatMessageTile(String message, String myUserName, String sendBy) {
+    bool sendByMe = myUserName == sendBy;
+
+    List<Widget> childrenMyMessage = [
+      getMessageContainer(message, sendByMe),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: Image.network(
+          myProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+          height: 20,
+          width: 20
+        ),
+      )
+    ];
+
+    List<Widget> childrenNotMyMessage = [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: Image.network(
+            myProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+            height: 20,
+            width: 20
+        ),
+      ),
+      getMessageContainer(message, sendByMe)
+    ];
+
     return Row(
       mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          Container(
-            decoration:  BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24),
-                bottomRight: sendByMe ? Radius.circular(0) : Radius.circular(24),
-                topRight: Radius.circular(24),
-                bottomLeft: sendByMe ? Radius.circular(24) : Radius.circular(0),
+          Column (
+            children: [
+              Text(
+                sendBy,
+                style: const TextStyle(color: Colors.black),
               ),
-              color: sendByMe ? Colors.blue : Colors.grey,
-            ),
-            margin: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white),
-            )
+              Row (
+                children: sendByMe ? childrenMyMessage : childrenNotMyMessage
+              )
+            ]
           )
-        ]
+      ]
     );
   }
 
@@ -118,7 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index){
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  return chatMessageTile(ds["message"], myUserName == ds["sendBy"]);
+                  return chatMessageTile(ds["message"], myUserName, ds["sendBy"]);
                 }
           ) : const Center(
               child: CircularProgressIndicator()
@@ -147,7 +199,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.name),
+        title: Row (
+            children: [
+              Image.network(
+                  myProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+                  height: 20,
+                  width: 20
+              ),
+              const SizedBox(width: 20),
+              Text(widget.name),
+            ]
+        )
       ),
       body: Container(
         child: Stack(
