@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter/helperfunctions/sharedpref_helper.dart';
@@ -107,8 +109,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 sendBy == myUserName ? myName : otherName,
                 style: const TextStyle(color: Colors.red),
               ),
-              Container(
-                width: message.length > 35 ? 200 : 50,
+              SizedBox(
+                width: message.length > max(myName.length, otherName.length) ? 200 : max(myName.length, otherName.length) * 6,
                 child: Text(
                   message,
                   overflow: TextOverflow.fade,
