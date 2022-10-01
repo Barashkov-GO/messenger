@@ -122,7 +122,9 @@ class _HomeState extends State<Home> {
                 },
               )
             : const Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: Color(0xFF375FFF),
+                ),
               );
       },
     );
@@ -216,19 +218,19 @@ class _HomeState extends State<Home> {
                                   }
                                 },
                                 child: const Icon(
-                                    Icons.search,
-                                    color: Color(0xFF969696),
-                                    size: 25,
+                                  Icons.search,
+                                  color: Color(0xFF969696),
+                                  size: 25,
                                 )),
                             const SizedBox(width: 5),
                             Expanded(
                                 child: TextField(
                               controller: searchUsernameEditingController,
                               style: GoogleFonts.sourceSansPro(
-                                  textStyle: const TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 17,
-                                  color: Color(0xFF969696)),
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 17,
+                                    color: Color(0xFF969696)),
                               ),
                               decoration: const InputDecoration(
                                   border: InputBorder.none,
@@ -278,31 +280,58 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatScreen(username ?? "", name ?? "")));
-      },
-      child: Row(children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: Image.network(
-              profilePicUrl ??
-                  'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
-              height: 40,
-              width: 40),
-        ),
-        SizedBox(width: 3),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name ?? "", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 3),
-            Text(widget.lastMessage)
-          ],
-        )
-      ]),
-    );
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ChatScreen(username ?? "", name ?? "")));
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+              border: Border(
+              bottom: BorderSide(
+                color: Color(0xFFEAEAEA),
+              ),
+          )),
+          child: Row(children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Image.network(
+                  profilePicUrl ??
+                      'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+                  height: 60,
+                  width: 60),
+            ),
+            const SizedBox(width: 20),
+            const SizedBox(height: 80),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  name ?? "",
+                  style: GoogleFonts.sourceSansPro(
+                    textStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Color(0xFF000000)),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  widget.lastMessage,
+                  style: GoogleFonts.sourceSansPro(
+                    textStyle: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        color: Color(0xFF6F6F6F)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ]),
+        ));
   }
 }
