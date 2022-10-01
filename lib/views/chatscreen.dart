@@ -105,12 +105,16 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Text(
                 sendBy == myUserName ? myName : otherName,
-                style: const TextStyle(color: Colors.black26),
+                style: const TextStyle(color: Colors.red),
               ),
-              Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              ),
+              Container(
+                width: message.length > 35 ? 200 : 50,
+                child: Text(
+                  message,
+                  overflow: TextOverflow.fade,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
             ]
         )
     );
