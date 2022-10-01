@@ -85,6 +85,7 @@ class DatabaseMethods{
     return userName;
   }
 
+
   Future<QuerySnapshot> getUserInfo(String username) async {
     return await FirebaseFirestore.instance
         .collection("users")
