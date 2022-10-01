@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:my_first_flutter/helperfunctions/sharedpref_helper.dart';
 import 'package:my_first_flutter/services/database.dart';
 import 'package:random_string/random_string.dart';
+
+
 class ChatScreen extends StatefulWidget {
   final String chatWithUsername, name;
 
@@ -16,17 +18,23 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late String chatRoomId, messageId = "";
   late Stream messagesStream;
-  late String myName, myProfilePic, otherProfilePic, myUserName, myEmail;
+  late String otherName, otherProfilePic, otherUserName;
+  late String myName, myProfilePic, myUserName, myEmail;
   TextEditingController messageTextEditingController = TextEditingController();
 
   getMyInfoFromSharedPreference() async {
     myName = (await SharedPreferenceHelper().getDisplayName())!;
     myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
-    // otherProfilePic = (await getProfilePhotoUrl(widget.name))!;
     myUserName = (await SharedPreferenceHelper().getUserName())!;
     myEmail = (await SharedPreferenceHelper().getUserEmail())!;
 
     chatRoomId = getChatRoomIdByUsernames(widget.chatWithUsername, myUserName);
+  }
+
+  getOtherInfo() async {
+    otherUserName = widget.chatWithUsername;
+    otherProfilePic = (await DatabaseMethods().getUserPhoto(otherUserName))!;
+    otherName = (await DatabaseMethods().getUserName(otherUserName))!;
   }
 
   getChatRoomIdByUsernames(String a, String b){
@@ -77,13 +85,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<String?> getProfilePhotoUrl(String userName) async {
-    QuerySnapshot querySnapshot =
-        await DatabaseMethods().getUserInfo(userName ?? "");
-    String? profilePicUrl = querySnapshot.docs[0]["imgUrl"];
-    return profilePicUrl;
-  }
-
   Widget getMessageContainer(String message, String sendBy, bool sendByMe) {
     return Container(
         decoration:  BoxDecoration(
@@ -103,8 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column (
             children: [
               Text(
-                sendBy,
-                style: const TextStyle(color: Colors.black),
+                sendBy == myUserName ? myName : otherName,
+                style: const TextStyle(color: Colors.black26),
               ),
               Text(
                 message,
@@ -127,14 +128,16 @@ class _ChatScreenState extends State<ChatScreen> {
           height: 20,
           width: 20
         ),
-      )
+      ),
+      const SizedBox(width: 5),
     ];
 
     List<Widget> childrenNotMyMessage = [
+      const SizedBox(width: 5),
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: Image.network(
-            myProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+            otherProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
             height: 20,
             width: 20
         ),
@@ -177,11 +180,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   getAndSetMessages() async {
     messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
+    messagesStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
     setState(() {});
   }
 
   doThisOnLaunch() async {
     await getMyInfoFromSharedPreference();
+    await getOtherInfo();
     getAndSetMessages();
   }
 
@@ -198,11 +203,11 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row (
             children: [
               Image.network(
-                  myProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+                  otherProfilePic ?? 'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
                   height: 20,
                   width: 20
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 5),
               Text(widget.name),
             ]
         )
