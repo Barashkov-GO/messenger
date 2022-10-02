@@ -339,6 +339,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                const SizedBox(height: 10),
                 Text(
                   name ?? "",
                   style: GoogleFonts.sourceSansPro(
@@ -349,16 +350,22 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  widget.lastMessage,
-                  style: GoogleFonts.sourceSansPro(
-                    textStyle: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        color: Color(0xFF6F6F6F)),
+                SizedBox(
+                  width: 220,
+                  height: 50,
+                  // padding: const EdgeInsets.all(10),
+                  child: Text(
+                    widget.lastMessage,
+                    style: GoogleFonts.sourceSansPro(
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15.5,
+                          color: Color(0xFF6F6F6F)),
+                    ),
+                    overflow: TextOverflow.fade,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
               ],
             ),
           ]),
