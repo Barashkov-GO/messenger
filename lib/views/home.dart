@@ -85,22 +85,51 @@ class _HomeState extends State<Home> {
             MaterialPageRoute(
                 builder: (context) => ChatScreen(username, name)));
       },
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(40),
-            child: Image.network(
-              profileUrl,
-              height: 30,
-              width: 30,
+      child: Container(
+          decoration: const BoxDecoration(
+              border: Border(
+            bottom: BorderSide(
+              color: Color(0xFFEAEAEA),
             ),
-          ),
-          const SizedBox(width: 12),
-          Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Text(name), Text(email)])
-        ],
-      ),
+          )),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.network(
+                  profileUrl,
+                  height: 60,
+                  width: 60,
+                ),
+              ),
+              const SizedBox(width: 20),
+              const SizedBox(height: 80),
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      name ?? "",
+                      style: GoogleFonts.sourceSansPro(
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Color(0xFF000000)),
+                      ),
+                    ),
+                    Text(
+                      email,
+                      style: GoogleFonts.sourceSansPro(
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Color(0xFF6F6F6F)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ])
+            ],
+          )),
     );
   }
 
@@ -262,7 +291,9 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   String? name, username;
 
   getThisUserInfo() async {
-    username = widget.chatRoomId.replaceFirst(widget.myUsername, "").replaceAll("_", "");
+    username = widget.chatRoomId
+        .replaceFirst(widget.myUsername, "")
+        .replaceAll("_", "");
     QuerySnapshot querySnapshot =
         await DatabaseMethods().getUserInfo(username ?? "");
     name = querySnapshot.docs[0]["name"];
@@ -289,9 +320,9 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
         child: Container(
           decoration: const BoxDecoration(
               border: Border(
-              bottom: BorderSide(
-                color: Color(0xFFEAEAEA),
-              ),
+            bottom: BorderSide(
+              color: Color(0xFFEAEAEA),
+            ),
           )),
           child: Row(children: [
             ClipRRect(
