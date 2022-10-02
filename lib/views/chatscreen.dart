@@ -111,14 +111,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 style: GoogleFonts.sourceSansPro(
                   textStyle: TextStyle(
                     fontWeight: FontWeight.w500,
-                    fontSize: 22,
+                    fontSize: 12,
                     color: sendBy == myUserName
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF4582FE),
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               SizedBox(
                 width: message.length > max(myName.length, otherName.length)
                     ? 200
@@ -167,8 +167,10 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Row(
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: sendByMe ? childrenMyMessage : childrenNotMyMessage)
-        ]);
+              children: sendByMe ? childrenMyMessage : childrenNotMyMessage
+          ),
+        ]
+    );
   }
 
   Widget chatMessages() {
@@ -177,7 +179,7 @@ class _ChatScreenState extends State<ChatScreen> {
         builder: (context, snapshot) {
           return snapshot.hasData
               ? ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 70, top: 16),
+                  padding: const EdgeInsets.only(bottom: 90, top: 16),
                   reverse: true,
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context, index) {
@@ -251,7 +253,7 @@ class _ChatScreenState extends State<ChatScreen> {
               color: const Color(0xFFF5F5F5),
               child: Container(
                 margin:
-                    const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                 padding: const EdgeInsets.symmetric(horizontal: 13),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAEAEA),
@@ -261,22 +263,23 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Expanded(
                         child: TextField(
-                      controller: messageTextEditingController,
-                      // onChanged: (value) {
-                      //   addMessage(false);
-                      // },
-                      style: GoogleFonts.sourceSansPro(
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17,
-                        ),
-                      ),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Сообщение",
-                        hintStyle: TextStyle(color: Color(0xFF969696)),
-                      ),
-                    )),
+                          controller: messageTextEditingController,
+                          // onChanged: (value) {
+                          //   addMessage(false);
+                          // },
+                          style: GoogleFonts.sourceSansPro(
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 17,
+                            ),
+                          ),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Сообщение",
+                            hintStyle: TextStyle(color: Color(0xFF969696)),
+                          ),
+                        )
+                    ),
                     GestureDetector(
                       onTap: () {
                         addMessage(true);
