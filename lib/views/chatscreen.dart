@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter/helperfunctions/sharedpref_helper.dart';
 import 'package:my_first_flutter/services/database.dart';
 import 'package:random_string/random_string.dart';
-
 
 class ChatScreen extends StatefulWidget {
   final String chatWithUsername, name;
@@ -17,7 +17,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-
   late String chatRoomId, messageId = "";
   late Stream messagesStream;
   late String otherName, otherProfilePic, otherUserName;
@@ -39,87 +38,106 @@ class _ChatScreenState extends State<ChatScreen> {
     otherName = (await DatabaseMethods().getUserName(otherUserName))!;
   }
 
-  getChatRoomIdByUsernames(String a, String b){
-    if(a.substring(0,1).codeUnitAt(0) > b.substring(0,1).codeUnitAt(0)){
+  getChatRoomIdByUsernames(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
     } else {
       return "$a\_$b";
     }
   }
 
-  addMessage(bool sendClicked){
-    if(messageTextEditingController.text != ""){
-       String message = messageTextEditingController.text;
+  addMessage(bool sendClicked) {
+    if (messageTextEditingController.text != "") {
+      String message = messageTextEditingController.text;
 
-       var lastMessageTs = DateTime.now();
+      var lastMessageTs = DateTime.now();
 
-       Map<String, dynamic> messageInfoMap = {
-        "message" : message,
-        "sendBy" : myUserName,
-        "ts" : lastMessageTs,
-        "imgUrl" : myProfilePic
-       };
+      Map<String, dynamic> messageInfoMap = {
+        "message": message,
+        "sendBy": myUserName,
+        "ts": lastMessageTs,
+        "imgUrl": myProfilePic
+      };
 
-       //messageId
-       if (messageId == ""){
-         messageId = randomAlphaNumeric(12);
-       }
+      //messageId
+      if (messageId == "") {
+        messageId = randomAlphaNumeric(12);
+      }
 
-       DatabaseMethods().addMessage(chatRoomId, messageId, messageInfoMap)
-       .then((value) {
+      DatabaseMethods()
+          .addMessage(chatRoomId, messageId, messageInfoMap)
+          .then((value) {
+        Map<String, dynamic> lastMessageInfoMap = {
+          "lastMessage": message,
+          "lastMessageSendTs": lastMessageTs,
+          "lastMessageSendBy": myUserName
+        };
 
-         Map<String, dynamic>  lastMessageInfoMap = {
-           "lastMessage" : message,
-           "lastMessageSendTs" : lastMessageTs,
-           "lastMessageSendBy" : myUserName
-         };
+        DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
 
-         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
+        if (sendClicked) {
+          //remove text in the message input field
+          messageTextEditingController.text = "";
 
-         if (sendClicked){
-           //remove text in the message input field
-           messageTextEditingController.text = "";
-
-           //make message id blank to get regenerated on text message send
-           messageId = "";
-         }
-       });
+          //make message id blank to get regenerated on text message send
+          messageId = "";
+        }
+      });
     }
   }
 
   Widget getMessageContainer(String message, String sendBy, bool sendByMe) {
     return Container(
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(24),
-            bottomRight: sendByMe ? const Radius.circular(0) : const Radius.circular(24),
+            bottomRight:
+                sendByMe ? const Radius.circular(5) : const Radius.circular(24),
             topRight: const Radius.circular(24),
-            bottomLeft: sendByMe ? const Radius.circular(24) : const Radius.circular(0),
+            bottomLeft:
+                sendByMe ? const Radius.circular(24) : const Radius.circular(5),
           ),
-          color: sendByMe ? Colors.blue : Colors.grey,
+          color: sendByMe ? const Color(0xFF246BFD) : const Color(0xFFEAEAEA),
         ),
-        margin: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 4
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column (
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+            crossAxisAlignment: sendBy == myUserName
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               Text(
                 sendBy == myUserName ? myName : otherName,
-                style: const TextStyle(color: Colors.red),
+                style: GoogleFonts.sourceSansPro(
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 22,
+                    color: sendBy == myUserName
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF4582FE),
+                  ),
+                ),
               ),
+              const SizedBox(height: 15),
               SizedBox(
-                width: message.length > max(myName.length, otherName.length) ? 200 : max(myName.length, otherName.length) * 6,
+                width: message.length > max(myName.length, otherName.length)
+                    ? 200
+                    : max(myName.length, otherName.length) * 6,
                 child: Text(
                   message,
                   overflow: TextOverflow.fade,
-                  style: const TextStyle(color: Colors.white),
+                  style: GoogleFonts.sourceSansPro(
+                    textStyle: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 17,
+                      color: sendBy == myUserName
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF1F161E),
+                    ),
+                  ),
                 ),
               )
-            ]
-        )
-    );
+            ]));
   }
 
   Widget chatMessageTile(String message, String myUserName, String sendBy) {
@@ -129,11 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
       getMessageContainer(message, sendBy, sendByMe),
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
-        child: Image.network(
-          myProfilePic,
-          height: 20,
-          width: 20
-        ),
+        child: Image.network(myProfilePic, height: 40, width: 40),
       ),
       const SizedBox(width: 5),
     ];
@@ -142,46 +156,37 @@ class _ChatScreenState extends State<ChatScreen> {
       const SizedBox(width: 5),
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
-        child: Image.network(
-            otherProfilePic,
-            height: 20,
-            width: 20
-        ),
+        child: Image.network(otherProfilePic, height: 40, width: 40),
       ),
       getMessageContainer(message, sendBy, sendByMe)
     ];
 
     return Row(
-      mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-      children: [
-        Row (
-          children: sendByMe ? childrenMyMessage : childrenNotMyMessage
-        )
-      ]
-    );
+        mainAxisAlignment:
+            sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: sendByMe ? childrenMyMessage : childrenNotMyMessage)
+        ]);
   }
 
-  Widget chatMessages(){
+  Widget chatMessages() {
     return StreamBuilder(
         stream: messagesStream,
-        builder: (context, snapshot){
+        builder: (context, snapshot) {
           return snapshot.hasData
               ? ListView.builder(
-                padding: const EdgeInsets.only(
-                  bottom: 70,
-                  top: 16
-                ),
-                reverse: true,
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context, index){
-                  DocumentSnapshot ds = snapshot.data.docs[index];
-                  return chatMessageTile(ds["message"], myUserName, ds["sendBy"]);
-                }
-          ) : const Center(
-              child: CircularProgressIndicator()
-          );
-        }
-    );
+                  padding: const EdgeInsets.only(bottom: 70, top: 16),
+                  reverse: true,
+                  itemCount: snapshot.data.docs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot ds = snapshot.data.docs[index];
+                    return chatMessageTile(
+                        ds["message"], myUserName, ds["sendBy"]);
+                  })
+              : const Center(child: CircularProgressIndicator());
+        });
   }
 
   getAndSetMessages() async {
@@ -205,18 +210,37 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row (
-            children: [
-              Image.network(
-                  otherProfilePic,
-                  height: 20,
-                  width: 20
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: AppBar(
+            titleSpacing: 0,
+            leading: GestureDetector(
+              child: const Icon(
+                Icons.arrow_back,
+                size: 25,
               ),
-              const SizedBox(width: 5),
-              Text(widget.name),
-            ]
-        )
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            toolbarHeight: 80.0,
+            backgroundColor: const Color(0xFF4582FE),
+            title: Row(children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.network(otherProfilePic, height: 55, width: 55),
+              ),
+              const SizedBox(width: 15),
+              Text(
+                widget.name,
+                style: GoogleFonts.sourceSansPro(
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 24,
+                  ),
+                ),
+              )
+            ])),
       ),
       body: Stack(
         children: [
@@ -224,41 +248,46 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             alignment: Alignment.bottomCenter,
             child: Container(
-              color: Colors.black.withOpacity(0.8),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                        controller: messageTextEditingController,
-                        // onChanged: (value) {
-                        //   addMessage(false);
-                        // },
-                        style: const TextStyle(
-                          color: Colors.white
+              color: const Color(0xFFF5F5F5),
+              child: Container(
+                margin:
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 13),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAEAEA),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: TextField(
+                      controller: messageTextEditingController,
+                      // onChanged: (value) {
+                      //   addMessage(false);
+                      // },
+                      style: GoogleFonts.sourceSansPro(
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 17,
                         ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "type a message",
-                          hintStyle: TextStyle(
-                            color: Colors.white.withOpacity(0.6)
-                          ),
-                        ),
-                      )
-                  ),
-                  GestureDetector(
-                    onTap: (){
-                      addMessage(true);
-                    },
-                    child: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    ),
-                  )
-                ],
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Сообщение",
+                        hintStyle: TextStyle(color: Color(0xFF969696)),
+                      ),
+                    )),
+                    GestureDetector(
+                      onTap: () {
+                        addMessage(true);
+                      },
+                      child: const Icon(
+                        Icons.send_rounded,
+                        color: Color(0xFF246BFD),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           )
