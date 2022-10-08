@@ -50,20 +50,21 @@ class _HomeState extends State<Home> {
   }
 
   Widget chatRoomsList() {
-    return StreamBuilder(
-        stream: chatRoomsStream,
-        builder: (context, snapshot) {
-          return snapshot.hasData
-              ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshot.data.docs.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot ds = snapshot.data.docs[index];
-                    return ChatRoomListTile(
-                        ds["lastMessage"] ?? '', ds.id, myUserName);
-                  })
-              : Center(child: CircularProgressIndicator());
-        });
+    return Expanded(
+        child: StreamBuilder(
+            stream: chatRoomsStream,
+            builder: (context, snapshot) {
+              return snapshot.hasData
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot ds = snapshot.data.docs[index];
+                        return ChatRoomListTile(
+                            ds["lastMessage"] ?? '', ds.id, myUserName);
+                      })
+                  : const Center(child: CircularProgressIndicator());
+            }));
   }
 
   Widget searchListUserTile(
@@ -134,7 +135,8 @@ class _HomeState extends State<Home> {
   }
 
   Widget searchUsersList() {
-    return StreamBuilder(
+    return Expanded(
+        child: StreamBuilder(
       stream: usersStream,
       builder: (context, snapshot) {
         return snapshot.hasData
@@ -156,7 +158,7 @@ class _HomeState extends State<Home> {
                 ),
               );
       },
-    );
+    ));
   }
 
   void getChatRooms() async {
@@ -329,7 +331,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
               borderRadius: BorderRadius.circular(30),
               child: Image.network(
                   profilePicUrl ??
-                      'https://media.istockphoto.com/photos/dotted-grid-paper-background-texture-seamless-repeat-pattern-picture-id1320330053?b=1&k=20&m=1320330053&s=170667a&w=0&h=XisfN35UnuxAVP_sjq3ujbFDyWPurSfSTYd-Ll09Ncc=',
+                      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/1362px-Placeholder_view_vector.svg.png",
                   height: 60,
                   width: 60),
             ),

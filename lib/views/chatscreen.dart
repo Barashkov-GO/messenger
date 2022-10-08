@@ -18,8 +18,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late String chatRoomId, messageId = "";
-  late Stream messagesStream;
-  late String otherName, otherProfilePic, otherUserName;
+  Stream? messagesStream;
+  String? otherProfilePic;
+  late String otherName, otherUserName;
   late String myName, myProfilePic, myUserName, myEmail;
   TextEditingController messageTextEditingController = TextEditingController();
 
@@ -156,7 +157,7 @@ class _ChatScreenState extends State<ChatScreen> {
       const SizedBox(width: 5),
       ClipRRect(
         borderRadius: BorderRadius.circular(30),
-        child: Image.network(otherProfilePic, height: 40, width: 40),
+        child: Image.network(otherProfilePic ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/1362px-Placeholder_view_vector.svg.png", height: 40, width: 40),
       ),
       getMessageContainer(message, sendBy, sendByMe)
     ];
@@ -230,7 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
             title: Row(children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(30),
-                child: Image.network(otherProfilePic, height: 55, width: 55),
+                child: Image.network(otherProfilePic ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/1362px-Placeholder_view_vector.svg.png", height: 55, width: 55),
               ),
               const SizedBox(width: 15),
               Text(

@@ -1,13 +1,12 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedPreferenceHelper{
+class SharedPreferenceHelper {
   static String userIdKey = "USERKEY";
   static String userNameKey = "USERNAMEKEY";
   static String displayNameKey = "USERDISPLAYNAMEKEY";
   static String userEmailKey = "USEREMAILKEY";
   static String userProfileKey = "USERPROFILEKEY";
   static String userProfilePicKey = "USERPROFILEPICKEY";
-
 
   //save data
   Future<bool> saveUserName(String userName) async {
