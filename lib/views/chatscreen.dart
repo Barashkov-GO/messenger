@@ -82,6 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
           //make message id blank to get regenerated on text message send
           messageId = "";
+          getAndSetMessages();
         }
       });
     }
